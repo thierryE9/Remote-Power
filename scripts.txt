@@ -1,0 +1,73 @@
+function doGet(e) {
+  // replace by sheet id
+  var ss = SpreadsheetApp.openById('sheet_id');
+  //replace by sheet name
+  var sheet = ss.getSheetByName('sheet_name');
+  var data = sheet.getDataRange().getValues(); // Retrieve the 2D array
+  var lastRow = sheet.getLastRow();
+  
+  // Get the JSON payload from the query parameter
+  var jsonPayload = e.parameter.cellNames;
+  Logger.log(jsonPayload);
+  
+  // Parse the JSON payload
+  var cellNames = JSON.parse(jsonPayload);
+
+  var result = {};
+
+  // Iterate through each cell name
+  for (var i = 0; i < cellNames.length; i++) {
+    var cellName = cellNames[i];
+    var cellValue = findCellValue(cellName, data);
+
+    // Add the cell value to the result object
+    result[cellName] = cellValue;
+  }
+
+  // Return the result as JSON
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Function to find the cell value based on cell name
+function findCellValue(cellName, data) {
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0] == cellName) {
+      return data[i][1];
+    }
+  }
+  return -1; // Cell not found
+}
+
+function doPost(e) {
+  // Parse the incoming JSON data
+  var requestData = JSON.parse(e.postData.contents);
+  
+  // Extract cellName and cellValue from the JSON object
+  var cellName = requestData.cellName;
+  var cellValue = requestData.cellValue;
+
+  // Open the spreadsheet
+  var ss = SpreadsheetApp.openById('1yNBUmGNcXP4fSSf_YRX3QBqbSEOLVrMWXtgYbFG-ZJk');
+  var sheet = ss.getSheetByName('Remote_Power');
+
+  // Get all data from the sheet
+  var data = sheet.getDataRange().getValues();
+
+  // Find the row index for the specified cellName
+  var rowIndex = -1;
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0] == cellName) {
+      rowIndex = i;
+      break;
+    }
+  }
+
+  // If the cellName is found, update the cellValue
+  if (rowIndex !== -1) {
+    sheet.getRange(rowIndex + 1, 2).setValue(cellValue); // Assuming cellValue is to be written in the cell to the right (column B)
+    return ContentService.createTextOutput("Cell " + cellName + " updated to " + cellValue);
+  } else {
+    return ContentService.createTextOutput("Cell " + cellName + " not found");
+  }
+}
+
