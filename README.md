@@ -27,11 +27,7 @@ This project allows you to remotely turn on your PC using an ESP8266 module. By 
 
 ### 1. Hardware Connections
 
-- Connect the ESP8266, IRFZ44N MOSFET, and resistors according to the following schematic:
-
-  ```
-  [Schematic Diagram Placeholder]
-  ```
+- Connect the ESP8266, IRFZ44N MOSFET, and resistors.
 
 ### 2. Google Sheets Configuration
 
